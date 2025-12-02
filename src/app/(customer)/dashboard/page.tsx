@@ -20,6 +20,11 @@ export default async function DashboardPage() {
         .eq('id', user.id)
         .single()
 
+    // Redirect staff immediately
+    if (profile && ['receptionist', 'doctor', 'admin'].includes(profile.role)) {
+        redirect('/staff/dashboard')
+    }
+
     return (
         <div className="p-8">
             <div className="max-w-4xl mx-auto">
@@ -41,14 +46,6 @@ export default async function DashboardPage() {
                         <h2 className="text-lg font-semibold mb-2">個人資料</h2>
                         <p className="text-slate-600">管理您的基本資料與健康紀錄</p>
                     </div>
-                    {['receptionist', 'doctor', 'admin'].includes(profile?.role) && (
-                        <Link href="/staff/dashboard" className="block group">
-                            <div className="p-6 bg-slate-900 text-white rounded-lg shadow border group-hover:bg-slate-800 transition-colors">
-                                <h2 className="text-lg font-semibold mb-2">診所後台</h2>
-                                <p className="text-slate-400">進入管理系統 (Staff Portal)</p>
-                            </div>
-                        </Link>
-                    )}
                 </div>
             </div>
         </div>

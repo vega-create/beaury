@@ -33,7 +33,7 @@ export default function LoginPage() {
                 throw error
             }
 
-            router.push('/dashboard')
+            router.push('/staff/dashboard')
             router.refresh()
         } catch (err: any) {
             setError(err.message || '登入失敗，請檢查帳號密碼')
