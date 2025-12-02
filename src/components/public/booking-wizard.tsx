@@ -60,7 +60,7 @@ function BookingWizardContent() {
             if (!isNaN(parsedDate.getTime())) {
                 setDate(parsedDate)
                 setTime(paramTime)
-                setStep(2) // Skip to step 2
+                // No need to skip steps anymore, start at step 1
             } else {
                 console.error('Invalid date param:', paramDate)
             }
@@ -95,7 +95,10 @@ function BookingWizardContent() {
                 throw new Error(errorData.error || 'Booking failed')
             }
 
-            alert('預約成功！我們會盡快與您聯繫確認。')
+            const result = await res.json()
+            const queueNumber = result.queue_number || '未知'
+
+            alert(`預約成功！\n您的掛號號碼是：${queueNumber}\n我們會盡快與您聯繫確認。`)
             router.push('/')
         } catch (error: any) {
             console.error(error)
@@ -112,7 +115,7 @@ function BookingWizardContent() {
         <div className="w-full max-w-4xl mx-auto">
             {/* Steps Indicator */}
             <div className="flex items-center justify-center mb-12">
-                {[1, 2, 3].map((i) => (
+                {[1, 2].map((i) => (
                     <div key={i} className="flex items-center">
                         <div className="flex flex-col items-center gap-2 relative">
                             <div className={cn(
@@ -125,12 +128,11 @@ function BookingWizardContent() {
                                 "absolute -bottom-8 text-xs font-medium whitespace-nowrap",
                                 step >= i ? "text-gold-dark" : "text-slate-400"
                             )}>
-                                {i === 1 && "選擇時段"}
-                                {i === 2 && "填寫資料"}
-                                {i === 3 && "確認預約"}
+                                {i === 1 && "填寫資料"}
+                                {i === 2 && "確認預約"}
                             </span>
                         </div>
-                        {i < 3 && (
+                        {i < 2 && (
                             <div className={cn(
                                 "w-20 h-1 bg-slate-100 mx-2 rounded-full",
                                 step > i && "bg-gold"
@@ -143,87 +145,17 @@ function BookingWizardContent() {
             <Card className="border-none shadow-2xl bg-white/80 backdrop-blur-md overflow-hidden mt-8">
                 <CardHeader className="bg-gradient-to-r from-gold/10 to-transparent border-b border-gold/10 pb-8">
                     <CardTitle className="text-2xl font-serif text-dark-slate">
-                        {step === 1 && "選擇預約項目與時間"}
-                        {step === 2 && "填寫個人資料"}
-                        {step === 3 && "確認預約資訊"}
+                        {step === 1 && "填寫個人資料"}
+                        {step === 2 && "確認預約資訊"}
                     </CardTitle>
                     <CardDescription>
-                        {step === 1 && "請選擇您想進行的療程以及方便的看診時段"}
-                        {step === 2 && "請填寫正確的聯絡資訊，以便我們與您聯繫"}
-                        {step === 3 && "請核對您的預約內容，送出後即完成預約"}
+                        {step === 1 && "請填寫正確的聯絡資訊，以便我們與您聯繫"}
+                        {step === 2 && "請核對您的預約內容，送出後即完成預約"}
                     </CardDescription>
                 </CardHeader>
 
                 <CardContent className="p-8">
                     {step === 1 && (
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>選擇療程</Label>
-                                    <Select value={treatmentId} onValueChange={setTreatmentId}>
-                                        <SelectTrigger className="h-12 border-slate-200 focus:ring-gold">
-                                            <SelectValue placeholder="請選擇療程項目" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {treatments.map(t => (
-                                                <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>選擇醫師</Label>
-                                    <Select value={doctorId} onValueChange={setDoctorId}>
-                                        <SelectTrigger className="h-12 border-slate-200 focus:ring-gold">
-                                            <SelectValue placeholder="請選擇醫師" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {doctors.map(d => (
-                                                <SelectItem key={d.id} value={d.id}>
-                                                    {Array.isArray(d.profiles) ? d.profiles[0]?.full_name : d.profiles?.full_name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="pt-4">
-                                    <Label className="mb-3 block">選擇時段</Label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {['10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00'].map((t) => (
-                                            <Button
-                                                key={t}
-                                                variant={time === t ? "default" : "outline"}
-                                                className={cn(
-                                                    "border-slate-200 hover:border-gold hover:text-gold hover:bg-gold/5",
-                                                    time === t && "bg-gold text-white hover:bg-gold-dark hover:text-white border-gold"
-                                                )}
-                                                onClick={() => setTime(t)}
-                                            >
-                                                {t}
-                                            </Button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="border rounded-lg p-4 bg-white/50">
-                                <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
-                                    className="rounded-md border-none"
-                                    classNames={{
-                                        day_selected: "bg-gold text-white hover:bg-gold-dark focus:bg-gold-dark",
-                                        day_today: "bg-slate-100 text-slate-900",
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 2 && (
                         <div className="space-y-6 max-w-md mx-auto">
                             <div className="bg-gold/5 p-4 rounded-lg mb-6 border border-gold/10">
                                 <h4 className="font-bold text-dark-slate mb-2">已選擇時段</h4>
@@ -274,7 +206,7 @@ function BookingWizardContent() {
                         </div>
                     )}
 
-                    {step === 3 && (
+                    {step === 2 && (
                         <div className="max-w-md mx-auto bg-gold/5 rounded-xl p-8 border border-gold/20">
                             <div className="space-y-6">
                                 <div className="flex items-center gap-4">
@@ -327,20 +259,11 @@ function BookingWizardContent() {
                     )}
                 </CardContent>
 
-                <CardFooter className="flex justify-between bg-slate-50 p-8 border-t border-slate-100">
-                    <Button
-                        variant="ghost"
-                        onClick={() => setStep(s => Math.max(1, s - 1))}
-                        disabled={step === 1}
-                        className="text-slate-500 hover:text-dark-slate"
-                    >
-                        上一步
-                    </Button>
-
-                    {step < 3 ? (
+                <CardFooter className="flex justify-end bg-slate-50 p-8 border-t border-slate-100">
+                    {step < 2 ? (
                         <Button
-                            onClick={() => setStep(s => Math.min(3, s + 1))}
-                            disabled={step === 2 && (!guestName || !guestPhone)}
+                            onClick={() => setStep(s => Math.min(2, s + 1))}
+                            disabled={step === 1 && (!guestName || !guestPhone)}
                             className="bg-gold hover:bg-gold-dark text-white px-8 rounded-full shadow-lg shadow-gold/20"
                         >
                             下一步 <ChevronRight className="w-4 h-4 ml-2" />
@@ -357,7 +280,7 @@ function BookingWizardContent() {
                     )}
                 </CardFooter>
             </Card>
-        </div>
+        </div >
     )
 }
 

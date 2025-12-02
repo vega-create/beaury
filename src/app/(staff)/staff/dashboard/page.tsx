@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Calendar, Clock, Activity } from 'lucide-react'
+import ClinicSettings from '@/components/staff/clinic-settings'
 
 export default async function StaffDashboard() {
     const supabase = await createClient()
@@ -64,6 +65,11 @@ export default async function StaffDashboard() {
                         <p className="text-xs text-muted-foreground">所有服務運作中</p>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* Clinic Settings Section */}
+            <div className="mt-8">
+                <ClinicSettings />
             </div>
         </div>
     )

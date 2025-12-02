@@ -7,6 +7,7 @@ import {
     checkAppointmentConflict,
     checkResourceAvailability
 } from '@/lib/utils/availability';
+import { getNextQueueNumber, checkDailyLimit } from '@/lib/utils/queue-number';
 
 import { z } from 'zod';
 
@@ -28,7 +29,21 @@ export async function POST(request: NextRequest) {
         // 2. Calculate end time (default 30 mins)
         const endTime = calculateEndTime(body.start_time, 30);
 
-        // 3. Check availability
+        // 3. Check daily appointment limit
+        const hasCapacity = await checkDailyLimit(
+            supabase,
+            body.doctor_id,
+            body.appointment_date
+        );
+
+        if (!hasCapacity) {
+            return NextResponse.json(
+                { error: '該日掛號已額滿，請選擇其他日期' },
+                { status: 409 }
+            );
+        }
+
+        // 4. Check availability
         const isAvailable = await checkDoctorAvailability(
             supabase,
             body.doctor_id,
@@ -44,7 +59,14 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 4. Insert Appointment
+        // 5. Get next queue number for this doctor on this date
+        const queueNumber = await getNextQueueNumber(
+            supabase,
+            body.doctor_id,
+            body.appointment_date
+        );
+
+        // 6. Insert Appointment with queue number
         const { data, error } = await supabase
             .from('appointments')
             .insert({
@@ -57,6 +79,7 @@ export async function POST(request: NextRequest) {
                 end_time: endTime,
                 status: 'pending',
                 customer_notes: body.notes,
+                queue_number: queueNumber,
                 // Guest fields
                 guest_name: body.guest_name,
                 guest_phone: body.guest_phone,
