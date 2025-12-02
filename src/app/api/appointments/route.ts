@@ -8,156 +8,81 @@ import {
     checkResourceAvailability
 } from '@/lib/utils/availability';
 
+import { z } from 'zod';
+
 export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
-    // 1. Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-        return NextResponse.json({ error: '未授權' }, { status: 401 });
-    }
+    try {
+        const json = await request.json();
+        const body = appointmentSchema.parse(json);
 
-    // 2. Parse body
-    const body = await request.json();
+        // 1. Auth check
+        const { data: { user } } = await supabase.auth.getUser();
 
-    // 3. Validation
-    const validationResult = appointmentSchema.safeParse(body);
-    if (!validationResult.success) {
-        return NextResponse.json(
-            { error: '資料格式錯誤', details: validationResult.error },
-            { status: 400 }
+        // If not logged in and not a guest booking, reject
+        if (!user && !body.is_guest) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // 2. Calculate end time (default 30 mins)
+        const endTime = calculateEndTime(body.start_time, 30);
+
+        // 3. Check availability
+        const isAvailable = await checkDoctorAvailability(
+            supabase,
+            body.doctor_id,
+            body.appointment_date,
+            body.start_time,
+            endTime
         );
-    }
 
-    const {
-        doctor_id,
-        treatment_id,
-        appointment_type,
-        appointment_date,
-        start_time,
-        customer_notes
-    } = validationResult.data;
-
-    // 4. Get treatment details
-    const { data: treatment } = await supabase
-        .from('treatments')
-        .select('duration_minutes, requires_special_equipment, required_equipment_ids')
-        .eq('id', treatment_id)
-        .single();
-
-    if (!treatment) {
-        return NextResponse.json({ error: '療程不存在' }, { status: 404 });
-    }
-
-    // 5. Calculate end time
-    const endTime = calculateEndTime(start_time, treatment.duration_minutes);
-
-    // 6. Check doctor availability (Schedule + Exceptions)
-    const isDoctorAvailable = await checkDoctorAvailability(
-        supabase,
-        doctor_id,
-        appointment_date,
-        start_time,
-        endTime
-    );
-
-    if (!isDoctorAvailable) {
-        return NextResponse.json(
-            { error: '該時段醫師無法預約' },
-            { status: 409 }
-        );
-    }
-
-    // 7. Check appointment conflicts
-    const hasConflict = await checkAppointmentConflict(
-        supabase,
-        doctor_id,
-import { z } from 'zod';
-
-    export async function POST(request: Request) {
-        const supabase = await createClient()
-
-        try {
-            const json = await request.json()
-            const body = appointmentSchema.parse(json)
-
-            // Check if user is logged in
-            const {
-                data: { user },
-            } = await supabase.auth.getUser()
-
-            // If not logged in, check if it's a guest booking
-            if (!user && !body.is_guest) {
-                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-            }
-
-            // Check availability (including capacity)
-            const isAvailable = await checkDoctorAvailability(
-                supabase,
-                body.doctor_id,
-                body.appointment_date,
-                body.start_time,
-                calculateEndTime(body.start_time, 30) // Placeholder for treatment duration
-            );
-
-            if (!isAvailable) {
-                return NextResponse.json(
-                    { error: 'Selected slot is not available' },
-                    { status: 409 }
-                )
-            }
-
-            // Calculate end time
-            const endTime = calculateEndTime(body.start_time, 30) // Default 30 mins if treatment duration unknown
-
-            // Create appointment
-            const { data, error } = await supabase
-                .from('appointments')
-                .insert({
-                    customer_id: user ? user.id : null, // Null for guest
-                    doctor_id: body.doctor_id,
-                    treatment_id: body.treatment_id,
-                    appointment_type: 'treatment', // Default type
-                    appointment_date: body.appointment_date,
-                    start_time: body.start_time,
-                    end_time: endTime,
-                    status: 'pending',
-                    customer_notes: body.notes,
-                    // Guest fields
-                    guest_name: body.guest_name,
-                    guest_phone: body.guest_phone,
-                    guest_email: body.guest_email,
-                })
-                .select()
-                .single()
-
-            if (error) throw error
-
-            return NextResponse.json(data)
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                return NextResponse.json({ error: error.issues }, { status: 400 })
-            }
-            console.error('Booking Error:', error)
+        if (!isAvailable) {
             return NextResponse.json(
-                { error: 'Internal Server Error' },
-                { status: 500 }
-            start_time,
-                end_time: endTime
-        });
+                { error: '該時段已被預約或醫師未排班' },
+                { status: 409 }
+            );
+        }
+
+        // 4. Insert Appointment
+        const { data, error } = await supabase
+            .from('appointments')
+            .insert({
+                customer_id: user ? user.id : null,
+                doctor_id: body.doctor_id,
+                treatment_id: body.treatment_id,
+                appointment_type: 'treatment',
+                appointment_date: body.appointment_date,
+                start_time: body.start_time,
+                end_time: endTime,
+                status: 'pending',
+                customer_notes: body.notes,
+                // Guest fields
+                guest_name: body.guest_name,
+                guest_phone: body.guest_phone,
+                guest_email: body.guest_email,
+                is_guest: body.is_guest || false
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Database Insert Error:', error);
+            throw error;
+        }
+
+        return NextResponse.json(data);
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return NextResponse.json({ error: '資料格式錯誤', details: error.issues }, { status: 400 });
+        }
+        console.error('Booking Error:', error);
+        return NextResponse.json(
+            { error: '預約失敗，請稍後再試' },
+            { status: 500 }
+        );
     }
-
-    // 11. Check if intake form is required
-    const intakeFormRequired = appointment_type === 'consultation';
-
-    return NextResponse.json({
-        success: true,
-        appointment,
-        intake_form_required: intakeFormRequired,
-        message: intakeFormRequired
-            ? '預約建立成功，請完成術前評估表單'
-            : '預約建立成功'
-    }, { status: 201 });
 }
 
 export async function GET(request: NextRequest) {
