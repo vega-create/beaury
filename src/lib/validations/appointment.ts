@@ -9,9 +9,9 @@ export const appointmentSchema = z.object({
     notes: z.string().optional(),
     // Guest fields
     is_guest: z.boolean().optional(),
-    guest_name: z.string().optional(),
-    guest_phone: z.string().optional(),
-    guest_email: z.string().email('Email 格式錯誤').optional(),
+    guest_name: z.union([z.string().min(1), z.literal('')]).optional(),
+    guest_phone: z.union([z.string().min(1), z.literal('')]).optional(),
+    guest_email: z.union([z.string().email('Email 格式錯誤'), z.literal('')]).optional(),
 });
 
 export const availableSlotsSchema = z.object({
