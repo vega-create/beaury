@@ -114,11 +114,21 @@ function BookingWizardContent() {
             <div className="flex items-center justify-center mb-12">
                 {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center">
-                        <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300",
-                            step >= i ? "bg-gold text-white shadow-lg shadow-gold/30" : "bg-slate-100 text-slate-400"
-                        )}>
-                            {step > i ? <Check className="w-6 h-6" /> : i}
+                        <div className="flex flex-col items-center gap-2 relative">
+                            <div className={cn(
+                                "w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 z-10",
+                                step >= i ? "bg-gold text-white shadow-lg shadow-gold/30" : "bg-slate-100 text-slate-400"
+                            )}>
+                                {step > i ? <Check className="w-6 h-6" /> : i}
+                            </div>
+                            <span className={cn(
+                                "absolute -bottom-8 text-xs font-medium whitespace-nowrap",
+                                step >= i ? "text-gold-dark" : "text-slate-400"
+                            )}>
+                                {i === 1 && "選擇時段"}
+                                {i === 2 && "填寫資料"}
+                                {i === 3 && "確認預約"}
+                            </span>
                         </div>
                         {i < 3 && (
                             <div className={cn(
@@ -130,7 +140,7 @@ function BookingWizardContent() {
                 ))}
             </div>
 
-            <Card className="border-none shadow-2xl bg-white/80 backdrop-blur-md overflow-hidden">
+            <Card className="border-none shadow-2xl bg-white/80 backdrop-blur-md overflow-hidden mt-8">
                 <CardHeader className="bg-gradient-to-r from-gold/10 to-transparent border-b border-gold/10 pb-8">
                     <CardTitle className="text-2xl font-serif text-dark-slate">
                         {step === 1 && "選擇預約項目與時間"}
