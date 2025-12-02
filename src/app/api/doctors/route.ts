@@ -19,9 +19,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Flatten the response for easier frontend consumption
-    const formattedDoctors = doctors.map(doc => ({
+    const formattedDoctors = doctors.map((doc: any) => ({
         id: doc.id,
-        full_name: doc.profiles?.full_name,
+        full_name: Array.isArray(doc.profiles) ? doc.profiles[0]?.full_name : doc.profiles?.full_name,
         specialization: doc.specialization,
         bio: doc.bio
     }));
