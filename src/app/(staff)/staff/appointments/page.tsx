@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
-// ★ 新增：匯入剛剛建立的按鈕元件
 import ExportAppointmentsButton from '@/components/staff/export-appointments-button'
 
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -38,13 +37,11 @@ export default async function AppointmentsPage() {
 
     return (
         <div className="space-y-8">
-            {/* ★ 修改：使用 flex 佈局來讓標題和按鈕排在同一行 */}
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">預約列表</h2>
                     <p className="text-muted-foreground">查看所有病患的預約紀錄與狀態。</p>
                 </div>
-                {/* ★ 新增：放入匯出按鈕，只有在有資料時才顯示 */}
                 {appointments && appointments.length > 0 && (
                     <ExportAppointmentsButton data={appointments} />
                 )}
@@ -56,8 +53,7 @@ export default async function AppointmentsPage() {
                         <TableRow>
                             <TableHead>預約日期</TableHead>
                             <TableHead>時間</TableHead>
-                            {/* ★ 新增：顯示掛號號碼 */}
-                            <TableHead>號碼</TableHead>
+                            {/* 移除了「號碼」欄位 */}
                             <TableHead>病患姓名</TableHead>
                             <TableHead>聯絡電話</TableHead>
                             <TableHead>預約醫師</TableHead>
@@ -75,19 +71,14 @@ export default async function AppointmentsPage() {
                                 <TableCell>
                                     {apt.start_time.slice(0, 5)}
                                 </TableCell>
-                                {/* ★ 新增：顯示掛號號碼 */}
-                                <TableCell className="font-mono font-bold text-blue-600">
-                                    {apt.queue_number ? `#${apt.queue_number}` : '-'}
-                                </TableCell>
+                                {/* 移除了顯示 queue_number 的欄位 */}
                                 <TableCell className="font-medium">
                                     <div className="flex items-center gap-2">
                                         <Avatar className="h-6 w-6">
-                                            {/* 如果是訪客，顯示 '訪'，否則顯示姓名首字 */}
                                             <AvatarFallback>
                                                 {apt.is_guest ? '訪' : apt.profiles?.full_name?.[0]}
                                             </AvatarFallback>
                                         </Avatar>
-                                        {/* 判斷顯示訪客姓名還是會員姓名 */}
                                         {apt.is_guest ? (
                                             <span>{apt.guest_name} <span className="text-xs text-slate-400">(訪客)</span></span>
                                         ) : (
@@ -96,7 +87,6 @@ export default async function AppointmentsPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    {/* 判斷顯示訪客電話還是會員電話 */}
                                     {apt.is_guest ? apt.guest_phone : apt.profiles?.phone}
                                 </TableCell>
                                 <TableCell>{apt.doctors?.profiles?.full_name}</TableCell>
@@ -113,7 +103,8 @@ export default async function AppointmentsPage() {
                         ))}
                         {(!appointments || appointments.length === 0) && (
                             <TableRow>
-                                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                                {/* 修改 colSpan 為 8 (因為少了一欄) */}
+                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                                     目前沒有預約紀錄
                                 </TableCell>
                             </TableRow>
