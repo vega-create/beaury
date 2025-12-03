@@ -128,3 +128,37 @@ export async function createSchedule(formData: FormData) {
     revalidatePath('/staff/schedules')
     redirect('/staff/schedules')
 }
+
+// ★ 新增：更新使用者角色的功能
+export async function updateUserRole(userId: string, newRole: string) {
+  const supabase = await createClient()
+
+  // 1. 安全檢查：確認操作者自己必須是 admin
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('未登入')
+
+  const { data: operatorProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (operatorProfile?.role !== 'admin') {
+    throw new Error('權限不足：只有管理員可以修改他人權限')
+  }
+
+  // 2. 執行更新
+  const { error } = await supabase
+    .from('profiles')
+    .update({ role: newRole })
+    .eq('id', userId)
+
+  if (error) {
+    console.error('Update role error:', error)
+    throw new Error('更新失敗')
+  }
+
+  // 3. 更新畫面
+  revalidatePath('/staff/users')
+  return { success: true }
+}
