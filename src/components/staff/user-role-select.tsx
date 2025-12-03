@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import {
   Select,
@@ -8,13 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { toast } from 'sonner' // 如果您沒裝 sonner，可以用 alert 代替
 import { updateUserRole } from '@/app/(staff)/staff/actions'
 
 interface Props {
   userId: string
   currentRole: string
-  currentUserId: string // 避免自己改到自己的權限把自己鎖住
+  currentUserId: string
 }
 
 export default function UserRoleSelect({ userId, currentRole, currentUserId }: Props) {
@@ -22,7 +20,6 @@ export default function UserRoleSelect({ userId, currentRole, currentUserId }: P
   const [loading, setLoading] = useState(false)
 
   const handleValueChange = async (newValue: string) => {
-    // 防呆：如果是自己，跳出警告（雖然通常不會禁止，但提醒一下比較好）
     if (userId === currentUserId && newValue !== 'admin') {
       if (!confirm('警告：您正在移除自己的管理員權限，確定嗎？')) return
     }
@@ -31,10 +28,10 @@ export default function UserRoleSelect({ userId, currentRole, currentUserId }: P
     try {
       await updateUserRole(userId, newValue)
       setRole(newValue)
-      alert('權限更新成功！') // 簡單提示
+      alert('權限更新成功！')
     } catch (error) {
       alert('更新失敗，請確認您是管理員')
-      setRole(currentRole) // 失敗就改回來
+      setRole(currentRole)
     } finally {
       setLoading(false)
     }
