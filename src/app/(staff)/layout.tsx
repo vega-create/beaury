@@ -58,6 +58,10 @@ export default async function StaffLayout({
                         <FileText className="w-5 h-5" />
                         預約列表
                     </Link>
+                     <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
+                        <staffmanage className="w-5 h-5" />
+                        權限管理
+                    </Link>
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">
