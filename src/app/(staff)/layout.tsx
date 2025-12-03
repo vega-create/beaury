@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-// 只使用基本圖示，避免版本問題
-import { Users, Calendar, FileText, LogOut, LayoutDashboard } from 'lucide-react'
+// 使用 Settings 齒輪圖示代表權限管理，比較好看
+import { Users, Calendar, FileText, LogOut, LayoutDashboard, Settings } from 'lucide-react'
 
 export default async function StaffLayout({
     children,
@@ -20,10 +20,10 @@ export default async function StaffLayout({
         .eq('id', user.id)
         .single()
 
-    // 轉小寫並去除空白，確保比對正確
+    // 轉小寫並去除空白
     const role = profile?.role?.trim().toLowerCase();
 
-    // 基本權限檢查
+    // 權限檢查
     if (!profile || !['receptionist', 'doctor', 'admin'].includes(role)) {
         redirect('/dashboard')
     }
@@ -58,11 +58,13 @@ export default async function StaffLayout({
                         預約列表
                     </Link>
                     
-                    {/* ★ 強制顯示權限管理按鈕 (拿掉 if 判斷) */}
-                    <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
-                        <Users className="w-5 h-5" />
-                        權限管理 (強制顯示)
-                    </Link>
+                    {/* ★ 只讓 admin 看到，並使用正式樣式 */ }
+                    {role === 'admin' && (
+                        <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
+                            <Settings className="w-5 h-5" />
+                            權限管理
+                        </Link>
+                    )}
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">
@@ -72,9 +74,9 @@ export default async function StaffLayout({
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user.email}</p>
-                            {/* ★ 黃色除錯文字 */}
-                            <p className="text-xs font-bold text-yellow-400 mt-1">
-                                身份驗證: [{role}]
+                            {/* 移除黃色除錯文字，改回正常顯示 */}
+                            <p className="text-xs truncate capitalize opacity-70">
+                                {role}
                             </p>
                         </div>
                     </div>
