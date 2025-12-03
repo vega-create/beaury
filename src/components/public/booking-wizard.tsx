@@ -81,6 +81,9 @@ function BookingWizardContent() {
                 throw new Error('無法取得療程資訊，請稍後再試')
             }
 
+            // Convert time format from HH:MM:SS to HH:MM if needed
+            const formattedTime = time.slice(0, 5) // Extract only HH:MM
+
             const res = await fetch('/api/appointments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -88,7 +91,7 @@ function BookingWizardContent() {
                     doctor_id: doctorId,
                     treatment_id: finalTreatmentId,
                     appointment_date: format(date, 'yyyy-MM-dd'),
-                    start_time: time,
+                    start_time: formattedTime,
                     guest_name: guestName,
                     guest_phone: guestPhone,
                     guest_email: guestEmail,
