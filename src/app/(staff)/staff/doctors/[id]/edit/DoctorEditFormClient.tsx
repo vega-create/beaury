@@ -28,7 +28,7 @@ interface Props {
     doctor: Doctor
 }
 
-export default function DoctorEditForm({ doctor }: Props) {
+export default function DoctorEditFormClient({ doctor }: Props) {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
@@ -47,7 +47,6 @@ export default function DoctorEditForm({ doctor }: Props) {
         try {
             const supabase = createClient()
 
-            // 更新 profiles 表
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({
@@ -58,7 +57,6 @@ export default function DoctorEditForm({ doctor }: Props) {
 
             if (profileError) throw profileError
 
-            // 更新 doctors 表
             const { error: doctorError } = await supabase
                 .from('doctors')
                 .update({
@@ -159,6 +157,3 @@ export default function DoctorEditForm({ doctor }: Props) {
         </form>
     )
 }
-
-
-
