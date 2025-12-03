@@ -92,7 +92,6 @@ export async function createSchedule(formData: FormData) {
         dayOfWeek: formData.get('dayOfWeek'),
         startTime: formData.get('startTime'),
         endTime: formData.get('endTime'),
-        capacity: formData.get('capacity'),
         effectiveFrom: formData.get('effectiveFrom'),
     }
 
@@ -102,7 +101,7 @@ export async function createSchedule(formData: FormData) {
         return { error: '資料格式錯誤: ' + JSON.stringify(validated.error.flatten()) }
     }
 
-    const { doctorId, dayOfWeek, startTime, endTime, capacity, effectiveFrom } = validated.data
+    const { doctorId, dayOfWeek, startTime, endTime, effectiveFrom } = validated.data
 
     const { error } = await supabase
         .from('schedules')
@@ -111,7 +110,6 @@ export async function createSchedule(formData: FormData) {
             day_of_week: dayOfWeek,
             start_time: startTime,
             end_time: endTime,
-            capacity: capacity,
             effective_from: effectiveFrom,
             is_active: true
         })
