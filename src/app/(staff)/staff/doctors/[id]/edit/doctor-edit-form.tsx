@@ -161,15 +161,4 @@ export default function DoctorEditForm({ doctor }: Props) {
 }
 ```
 
----
 
-## 檔案結構總覽
-```
-src/app/(staff)/staff/doctors/
-├── page.tsx                    ← 修改這個（加上編輯連結）
-├── new/
-│   └── page.tsx                ← 已有，不用動
-└── [id]/
-    └── edit/
-        ├── page.tsx            ← 新增這個
-        └── doctor-edit-form.tsx ← 新增這個
