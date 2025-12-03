@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-// ★ 1. 新增 Shield 圖示
 import { Users, Calendar, FileText, LogOut, LayoutDashboard, Shield } from 'lucide-react'
 
 export default async function StaffLayout({
@@ -25,7 +24,10 @@ export default async function StaffLayout({
         .eq('id', user.id)
         .single()
 
-    if (!profile || !['receptionist', 'doctor', 'admin'].includes(profile.role)) {
+    // 寬容判斷：轉小寫並去除空白
+    const role = profile?.role?.trim().toLowerCase();
+
+    if (!profile || !['receptionist', 'doctor', 'admin'].includes(role)) {
         redirect('/dashboard')
     }
 
@@ -59,8 +61,8 @@ export default async function StaffLayout({
                         預約列表
                     </Link>
                     
-                    {/* ★ 2. 新增：權限管理連結 (只有 Admin 才需要看，但為了方便我們先都顯示，點進去會被擋) */}
-                    {profile.role === 'admin' && (
+                    {/* ★ 修正後的權限判斷：使用處理過的 role 變數 */}
+                    {role === 'admin' && (
                         <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
                             <Shield className="w-5 h-5" />
                             權限管理
@@ -75,9 +77,10 @@ export default async function StaffLayout({
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user.email}</p>
-                            {/* ★ 修改這裡：加上括號與顏色，讓我們看清楚系統到底讀到什麼 */}
+                            {/* ★ 修正後的除錯訊息：補上閉合標籤 </p> */}
                             <p className="text-xs font-bold text-yellow-400 mt-1">
-                                目前身份: [{profile.role}]
+                                目前身份: [{role}]
+                            </p>
                         </div>
                     </div>
                     <form action="/auth/signout" method="post">
