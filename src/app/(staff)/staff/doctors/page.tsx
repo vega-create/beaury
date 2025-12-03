@@ -55,10 +55,10 @@ export default async function DoctorsPage() {
                                 <TableCell className="font-medium">
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarFallback>{doctor.profiles?.full_name[0]}</AvatarFallback>
+                                            <AvatarFallback>{doctor.profiles?.full_name?.[0] || '?'}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <div className="font-bold">{doctor.profiles?.full_name}</div>
+                                            <div className="font-bold">{doctor.profiles?.full_name || '未設定'}</div>
                                             <div className="text-xs text-muted-foreground">{doctor.profiles?.email}</div>
                                         </div>
                                     </div>
@@ -79,7 +79,9 @@ export default async function DoctorsPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="sm">編輯</Button>
+                                    <Link href={`/staff/doctors/${doctor.id}/edit`}>
+                                        <Button variant="ghost" size="sm">編輯</Button>
+                                    </Link>
                                 </TableCell>
                             </TableRow>
                         ))}
