@@ -111,8 +111,8 @@ export default async function ScheduleGrid() {
                                                     {doctorsInSlot.length > 0 ? (
                                                         doctorsInSlot.map((item: any) => (
                                                             <Link
-                                                                key={item.id}
-                                                                href={`/booking/new?doctor=${item.id}&date=${getNextDayDate(day)}&time=${item.schedule.start_time}`}
+                                                                key={item.schedule.id}
+                                                                href={`/booking/new?doctor=${item.schedule.doctor_id}&date=${getNextDayDate(day)}&time=${item.schedule.start_time}`}
                                                                 className="block group"
                                                             >
                                                                 <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-white border border-gold/10 shadow-sm hover:shadow-md hover:border-gold/30 hover:bg-gold/5 transition-all cursor-pointer">
