@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users, Calendar, FileText, LogOut, LayoutDashboard } from 'lucide-react'
+// ★ 1. 新增 Shield 圖示
+import { Users, Calendar, FileText, LogOut, LayoutDashboard, Shield } from 'lucide-react'
 
 export default async function StaffLayout({
     children,
@@ -18,7 +19,6 @@ export default async function StaffLayout({
         redirect('/login')
     }
 
-    // Check if user has staff access (receptionist, doctor, or admin)
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -26,7 +26,7 @@ export default async function StaffLayout({
         .single()
 
     if (!profile || !['receptionist', 'doctor', 'admin'].includes(profile.role)) {
-        redirect('/dashboard') // Redirect unauthorized users to customer dashboard
+        redirect('/dashboard')
     }
 
     return (
@@ -58,10 +58,14 @@ export default async function StaffLayout({
                         <FileText className="w-5 h-5" />
                         預約列表
                     </Link>
-                     <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
-                        <staffmanage className="w-5 h-5" />
-                        權限管理
-                    </Link>
+                    
+                    {/* ★ 2. 新增：權限管理連結 (只有 Admin 才需要看，但為了方便我們先都顯示，點進去會被擋) */}
+                    {profile.role === 'admin' && (
+                        <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
+                            <Shield className="w-5 h-5" />
+                            權限管理
+                        </Link>
+                    )}
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">
@@ -85,10 +89,8 @@ export default async function StaffLayout({
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {/* Mobile Header */}
                 <header className="md:hidden bg-white border-b p-4 flex items-center justify-between">
                     <span className="font-bold">診所後台</span>
-                    {/* Add mobile menu trigger here if needed */}
                 </header>
 
                 <div className="flex-1 overflow-auto p-4 md:p-8">
