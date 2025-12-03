@@ -31,13 +31,13 @@ export default function DoctorEditFormClient({ doctor }: Props) {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
-        full_name: doctor.profiles?.full_name || '',
-        phone: doctor.profiles?.phone || '',
-        license_number: doctor.license_number || '',
-        specialization: doctor.specialization?.join(', ') || '',
-        bio: doctor.bio || '',
-        is_active: doctor.is_active,
-    })
+    full_name: doctor.profiles?.full_name || '',
+    phone: doctor.profiles?.phone || '',
+    license_number: doctor.license_number || '',
+    specialization: doctor.specialization?.join(', ') || '',
+    bio: doctor.bio || '',
+    is_active: doctor.is_active,
+})
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
