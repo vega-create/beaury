@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 
 interface Doctor {
     id: string
-    user_id: string
+    profile_id: string
     license_number: string
     specialization: string[]
     bio: string | null
@@ -52,7 +52,7 @@ export default function DoctorEditFormClient({ doctor }: Props) {
                     full_name: formData.full_name,
                     phone: formData.phone,
                 })
-                .eq('id', doctor.user_id)
+                .eq('id', doctor.profile_id)
 
             if (profileError) throw profileError
 
