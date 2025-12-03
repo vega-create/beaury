@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
+// ★ 匯入按鈕元件
 import ExportAppointmentsButton from '@/components/staff/export-appointments-button'
 
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -37,11 +38,13 @@ export default async function AppointmentsPage() {
 
     return (
         <div className="space-y-8">
+            {/* ★ 修改佈局：讓標題跟按鈕排在同一列 */}
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">預約列表</h2>
                     <p className="text-muted-foreground">查看所有病患的預約紀錄與狀態。</p>
                 </div>
+                {/* ★ 放入按鈕 */}
                 {appointments && appointments.length > 0 && (
                     <ExportAppointmentsButton data={appointments} />
                 )}
@@ -53,7 +56,7 @@ export default async function AppointmentsPage() {
                         <TableRow>
                             <TableHead>預約日期</TableHead>
                             <TableHead>時間</TableHead>
-                            {/* 移除了「號碼」欄位 */}
+                            {/* 這裡不放號碼欄位 */}
                             <TableHead>病患姓名</TableHead>
                             <TableHead>聯絡電話</TableHead>
                             <TableHead>預約醫師</TableHead>
@@ -71,7 +74,7 @@ export default async function AppointmentsPage() {
                                 <TableCell>
                                     {apt.start_time.slice(0, 5)}
                                 </TableCell>
-                                {/* 移除了顯示 queue_number 的欄位 */}
+                                {/* 這裡顯示姓名 (支援訪客) */}
                                 <TableCell className="font-medium">
                                     <div className="flex items-center gap-2">
                                         <Avatar className="h-6 w-6">
@@ -103,7 +106,6 @@ export default async function AppointmentsPage() {
                         ))}
                         {(!appointments || appointments.length === 0) && (
                             <TableRow>
-                                {/* 修改 colSpan 為 8 (因為少了一欄) */}
                                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                                     目前沒有預約紀錄
                                 </TableCell>
