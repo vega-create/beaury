@@ -75,7 +75,9 @@ export default async function StaffLayout({
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user.email}</p>
-                            <p className="text-xs truncate capitalize">{profile.role}</p>
+                            {/* ★ 修改這裡：加上括號與顏色，讓我們看清楚系統到底讀到什麼 */}
+                            <p className="text-xs font-bold text-yellow-400 mt-1">
+                                目前身份: [{profile.role}]
                         </div>
                     </div>
                     <form action="/auth/signout" method="post">
