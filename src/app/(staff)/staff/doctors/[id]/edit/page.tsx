@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import DoctorEditForm from './doctor-edit-form'
+import DoctorEditFormClient from './DoctorEditFormClient'
 
 interface PageProps {
     params: Promise<{ id: string }>
@@ -31,7 +31,7 @@ export default async function DoctorEditPage({ params }: PageProps) {
             </div>
 
             <div className="max-w-2xl">
-                <DoctorEditForm doctor={doctor} />
+                <DoctorEditFormClient doctor={doctor} />
             </div>
         </div>
     )
