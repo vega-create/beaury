@@ -27,12 +27,14 @@ ON CONFLICT (setting_key) DO NOTHING;
 ALTER TABLE clinic_settings ENABLE ROW LEVEL SECURITY;
 
 -- Allow all authenticated users to read settings
+DROP POLICY IF EXISTS "Anyone can read clinic settings" ON clinic_settings;
 CREATE POLICY "Anyone can read clinic settings"
 ON clinic_settings FOR SELECT
 TO authenticated
 USING (true);
 
 -- Only staff can update settings
+DROP POLICY IF EXISTS "Only staff can update clinic settings" ON clinic_settings;
 CREATE POLICY "Only staff can update clinic settings"
 ON clinic_settings FOR ALL
 TO authenticated
@@ -40,7 +42,7 @@ USING (
     EXISTS (
         SELECT 1 FROM profiles
         WHERE profiles.id = auth.uid()
-        AND profiles.role = 'staff'
+        AND profiles.role IN ('receptionist', 'doctor', 'admin')
     )
 );
 

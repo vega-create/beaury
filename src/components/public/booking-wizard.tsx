@@ -74,12 +74,19 @@ function BookingWizardContent() {
                 throw new Error('請選擇日期')
             }
 
+            // Ensure treatment_id is valid
+            const finalTreatmentId = treatmentId || (treatments.length > 0 ? treatments[0].id : null)
+
+            if (!finalTreatmentId) {
+                throw new Error('無法取得療程資訊，請稍後再試')
+            }
+
             const res = await fetch('/api/appointments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     doctor_id: doctorId,
-                    treatment_id: treatmentId || treatments[0]?.id, // Default to first treatment if not selected (or handle better)
+                    treatment_id: finalTreatmentId,
                     appointment_date: format(date, 'yyyy-MM-dd'),
                     start_time: time,
                     guest_name: guestName,
@@ -92,7 +99,13 @@ function BookingWizardContent() {
 
             if (!res.ok) {
                 const errorData = await res.json()
-                throw new Error(errorData.error || 'Booking failed')
+                // Format Zod error details if available
+                let errorMessage = errorData.error || 'Booking failed'
+                if (errorData.details && Array.isArray(errorData.details)) {
+                    const details = errorData.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join('\n')
+                    errorMessage += `\n\n詳細錯誤：\n${details}`
+                }
+                throw new Error(errorMessage)
             }
 
             const result = await res.json()
@@ -112,7 +125,7 @@ function BookingWizardContent() {
     const selectedTreatment = treatments.find(t => t.id === treatmentId)
 
     return (
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto px-4 md:px-0">
             {/* Steps Indicator */}
             <div className="flex items-center justify-center mb-12">
                 {[1, 2].map((i) => (
@@ -259,12 +272,22 @@ function BookingWizardContent() {
                     )}
                 </CardContent>
 
-                <CardFooter className="flex justify-end bg-slate-50 p-8 border-t border-slate-100">
+                <CardFooter className="flex justify-between bg-slate-50 p-8 border-t border-slate-100">
+                    {step === 2 && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setStep(1)}
+                            className="px-8 rounded-full border-slate-300 text-slate-600 hover:bg-slate-100"
+                        >
+                            上一步
+                        </Button>
+                    )}
+
                     {step < 2 ? (
                         <Button
                             onClick={() => setStep(s => Math.min(2, s + 1))}
                             disabled={step === 1 && (!guestName || !guestPhone)}
-                            className="bg-gold hover:bg-gold-dark text-white px-8 rounded-full shadow-lg shadow-gold/20"
+                            className="bg-black hover:bg-slate-800 text-white px-8 rounded-full shadow-lg ml-auto"
                         >
                             下一步 <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -272,7 +295,7 @@ function BookingWizardContent() {
                         <Button
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="bg-dark-slate hover:bg-slate-800 text-white px-8 rounded-full shadow-lg"
+                            className="bg-black hover:bg-slate-800 text-white px-8 rounded-full shadow-lg ml-auto"
                         >
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             確認預約
