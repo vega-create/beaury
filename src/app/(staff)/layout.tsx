@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-// 只使用基本圖示
+// 只使用基本圖示，避免版本問題
 import { Users, Calendar, FileText, LogOut, LayoutDashboard } from 'lucide-react'
 
 export default async function StaffLayout({
@@ -20,8 +20,10 @@ export default async function StaffLayout({
         .eq('id', user.id)
         .single()
 
+    // 轉小寫並去除空白，確保比對正確
     const role = profile?.role?.trim().toLowerCase();
 
+    // 基本權限檢查
     if (!profile || !['receptionist', 'doctor', 'admin'].includes(role)) {
         redirect('/dashboard')
     }
@@ -56,10 +58,10 @@ export default async function StaffLayout({
                         預約列表
                     </Link>
                     
-                    {/* ★★★ 這裡移除了所有條件，強制顯示！ ★★★ */}
+                    {/* ★ 強制顯示權限管理按鈕 (拿掉 if 判斷) */}
                     <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
                         <Users className="w-5 h-5" />
-                        權限管理 (強制版)
+                        權限管理 (強制顯示)
                     </Link>
                 </nav>
 
@@ -70,6 +72,7 @@ export default async function StaffLayout({
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user.email}</p>
+                            {/* ★ 黃色除錯文字 */}
                             <p className="text-xs font-bold text-yellow-400 mt-1">
                                 身份驗證: [{role}]
                             </p>
@@ -84,6 +87,7 @@ export default async function StaffLayout({
                 </div>
             </aside>
 
+            {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <header className="md:hidden bg-white border-b p-4 flex items-center justify-between">
                     <span className="font-bold">診所後台</span>
