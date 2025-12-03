@@ -60,7 +60,7 @@ export default async function StaffLayout({
                     
                     {/* ★ 只讓 admin 看到，並使用正式樣式 */ }
                     {role === 'admin' && (
-                        <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
+                        <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors">
                             <Settings className="w-5 h-5" />
                             權限管理
                         </Link>
