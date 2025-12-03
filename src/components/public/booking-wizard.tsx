@@ -74,6 +74,18 @@ function BookingWizardContent() {
                 throw new Error('請選擇日期')
             }
 
+            // Validate doctor_id
+            if (!doctorId) {
+                throw new Error('缺少醫師資訊，請重新選擇預約時段')
+            }
+
+            // UUID format validation
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+            if (!uuidRegex.test(doctorId)) {
+                console.error('Invalid doctor_id:', doctorId)
+                throw new Error(`醫師 ID 格式錯誤。請從首頁重新選擇醫師與時段。`)
+            }
+
             // Ensure treatment_id is valid
             const finalTreatmentId = treatmentId || (treatments.length > 0 ? treatments[0].id : null)
 
@@ -83,6 +95,15 @@ function BookingWizardContent() {
 
             // Convert time format from HH:MM:SS to HH:MM if needed
             const formattedTime = time.slice(0, 5) // Extract only HH:MM
+
+            console.log('Submitting appointment:', {
+                doctor_id: doctorId,
+                treatment_id: finalTreatmentId,
+                appointment_date: format(date, 'yyyy-MM-dd'),
+                start_time: formattedTime,
+                guest_name: guestName,
+                guest_phone: guestPhone
+            })
 
             const res = await fetch('/api/appointments', {
                 method: 'POST',

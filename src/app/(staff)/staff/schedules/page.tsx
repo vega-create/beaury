@@ -95,9 +95,7 @@ export default async function SchedulesPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Link href={`/staff/schedules/${schedule.id}/edit`}>
-                                        <Button variant="ghost" size="sm">編輯</Button>
-                                    </Link>
+                                    <Button variant="ghost" size="sm" disabled>編輯</Button>
                                 </TableCell>
                             </TableRow>
                         ))}
