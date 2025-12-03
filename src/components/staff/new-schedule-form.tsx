@@ -14,7 +14,7 @@ type Doctor = {
     id: string
     profiles: {
         full_name: string
-    }
+    } | null
 }
 
 export default function NewSchedulePage({
@@ -63,12 +63,12 @@ export default function NewSchedulePage({
                                     <SelectValue placeholder="請選擇醫師" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {doctors.map((doctor) => (
-                                        <SelectItem key={doctor.id} value={doctor.id}>
-                                            {doctor.profiles.full_name}
-                                        </SelectItem>
+                                   {doctors.map((doctor) => (
+                                <SelectItem key={doctor.id} value={doctor.id}>
+                                {doctor.profiles?.full_name ?? '未設定姓名'}
+                               </SelectItem>
                                     ))}
-                                </SelectContent>
+                             </SelectContent>
                             </Select>
                         </div>
 
