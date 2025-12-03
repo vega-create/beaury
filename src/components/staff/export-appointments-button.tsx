@@ -5,11 +5,10 @@ import { Download } from 'lucide-react'
 
 export default function ExportAppointmentsButton({ data }: { data: any[] }) {
     const handleExport = () => {
-        // 1. 整理資料格式 (移除了「掛號號碼」)
+        // 1. 整理資料格式 (已移除掛號號碼)
         const formattedData = data.map(apt => ({
             預約日期: apt.appointment_date,
             預約時間: apt.start_time.slice(0, 5),
-            // 原本這裡有掛號號碼，現在移除了
             病患姓名: apt.is_guest ? (apt.guest_name + '(訪)') : (apt.profiles?.full_name || '未知'),
             電話: apt.is_guest ? apt.guest_phone : apt.profiles?.phone || '-',
             Email: apt.is_guest ? apt.guest_email : apt.profiles?.email || '-',
@@ -22,7 +21,7 @@ export default function ExportAppointmentsButton({ data }: { data: any[] }) {
                   apt.status === 'no_show' ? '未出席' : apt.status
         }))
 
-        // 2. 製作 CSV 內容 (處理中文編碼 BOM \uFEFF)
+        // 2. 製作 CSV 內容 (處理中文編碼)
         const headers = Object.keys(formattedData[0] || {}).join(',')
         const rows = formattedData.map(obj => 
             Object.values(obj).map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')
