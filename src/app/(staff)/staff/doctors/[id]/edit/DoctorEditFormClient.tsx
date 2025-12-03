@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { createClient } from '@/lib/supabase/client'
 
 interface Doctor {
@@ -132,19 +131,22 @@ export default function DoctorEditFormClient({ doctor }: Props) {
                     placeholder="醫師學經歷、專業背景..."
                 />
             </div>
-
-            <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                    <Label>執業狀態</Label>
-                    <p className="text-sm text-muted-foreground">
-                        {formData.is_active ? '目前為執業中狀態' : '目前為停用狀態'}
-                    </p>
-                </div>
-                <Switch
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                />
-            </div>
+            
+             <div className="flex items-center gap-3 rounded-lg border p-4">
+             <input
+                 type="checkbox"
+                 id="is_active"
+                 checked={formData.is_active}
+                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                 className="h-5 w-5"
+               />
+              <div>
+             <Label htmlFor="is_active">執業狀態</Label>
+             <p className="text-sm text-muted-foreground">
+            {formData.is_active ? '目前為執業中狀態' : '目前為停用狀態'}
+          </p>
+          </div>
+     </div>
 
             <div className="flex gap-4">
                 <Button type="submit" disabled={loading}>
