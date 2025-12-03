@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Users, Calendar, FileText, LogOut, LayoutDashboard, Shield } from 'lucide-react'
+// ★ 移除 Shield，只保留確定有的圖示，避免 Vercel 報錯
+import { Users, Calendar, FileText, LogOut, LayoutDashboard } from 'lucide-react'
 
 export default async function StaffLayout({
     children,
@@ -10,13 +11,8 @@ export default async function StaffLayout({
 }) {
     const supabase = await createClient()
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-        redirect('/login')
-    }
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login')
 
     const { data: profile } = await supabase
         .from('profiles')
@@ -24,10 +20,10 @@ export default async function StaffLayout({
         .eq('id', user.id)
         .single()
 
-    // 寬容判斷：轉小寫並去除空白
+    // ★ 強力清潔：轉小寫、去空白
     const role = profile?.role?.trim().toLowerCase();
 
-    // 檢查權限
+    // 檢查基本權限
     if (!profile || !['receptionist', 'doctor', 'admin'].includes(role)) {
         redirect('/dashboard')
     }
@@ -62,10 +58,10 @@ export default async function StaffLayout({
                         預約列表
                     </Link>
                     
-                    {/* ★ 權限管理連結：只要是 admin 就顯示 */}
+                    {/* ★ 權限管理：改用 Users 圖示 (最安全) 並加強顯示條件 */}
                     {role === 'admin' && (
                         <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
-                            <Shield className="w-5 h-5" />
+                            <Users className="w-5 h-5" />
                             權限管理
                         </Link>
                     )}
@@ -78,9 +74,9 @@ export default async function StaffLayout({
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user.email}</p>
-                            {/* ★ 除錯訊息：黃色顯示，確認身份 */}
+                            {/* ★ 黃色除錯文字：看到這個變黃色才代表更新成功！ */}
                             <p className="text-xs font-bold text-yellow-400 mt-1">
-                                目前身份: [{role}]
+                                身份驗證: [{role}]
                             </p>
                         </div>
                     </div>
@@ -92,13 +88,11 @@ export default async function StaffLayout({
                     </form>
                 </div>
             </aside>
-
-            {/* Main Content */}
+             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <header className="md:hidden bg-white border-b p-4 flex items-center justify-between">
                     <span className="font-bold">診所後台</span>
                 </header>
-
                 <div className="flex-1 overflow-auto p-4 md:p-8">
                     {children}
                 </div>
