@@ -27,6 +27,7 @@ export default async function StaffLayout({
     // 寬容判斷：轉小寫並去除空白
     const role = profile?.role?.trim().toLowerCase();
 
+    // 檢查權限
     if (!profile || !['receptionist', 'doctor', 'admin'].includes(role)) {
         redirect('/dashboard')
     }
@@ -61,7 +62,7 @@ export default async function StaffLayout({
                         預約列表
                     </Link>
                     
-                    {/* ★ 修正後的權限判斷：使用處理過的 role 變數 */}
+                    {/* ★ 權限管理連結：只要是 admin 就顯示 */}
                     {role === 'admin' && (
                         <Link href="/staff/users" className="flex items-center gap-3 px-4 py-3 text-amber-400 hover:bg-slate-800 hover:text-amber-300 rounded-lg transition-colors">
                             <Shield className="w-5 h-5" />
@@ -77,7 +78,7 @@ export default async function StaffLayout({
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-sm font-medium truncate text-white">{user.email}</p>
-                            {/* ★ 修正後的除錯訊息：補上閉合標籤 </p> */}
+                            {/* ★ 除錯訊息：黃色顯示，確認身份 */}
                             <p className="text-xs font-bold text-yellow-400 mt-1">
                                 目前身份: [{role}]
                             </p>
