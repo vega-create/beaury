@@ -81,7 +81,6 @@ const scheduleSchema = z.object({
     dayOfWeek: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
     startTime: z.string().regex(/^\d{2}:\d{2}$/),
     endTime: z.string().regex(/^\d{2}:\d{2}$/),
-    capacity: z.coerce.number().min(1),
     effectiveFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 })
 
