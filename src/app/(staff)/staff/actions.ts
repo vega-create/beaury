@@ -81,6 +81,7 @@ const scheduleSchema = z.object({
     dayOfWeek: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
     startTime: z.string().regex(/^\d{2}:\d{2}$/),
     endTime: z.string().regex(/^\d{2}:\d{2}$/),
+    capacity: z.coerce.number().min(1),
     effectiveFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 })
 
@@ -92,6 +93,7 @@ export async function createSchedule(formData: FormData) {
         dayOfWeek: formData.get('dayOfWeek'),
         startTime: formData.get('startTime'),
         endTime: formData.get('endTime'),
+        capacity: formData.get('capacity'),
         effectiveFrom: formData.get('effectiveFrom'),
     }
 
@@ -101,7 +103,7 @@ export async function createSchedule(formData: FormData) {
         return { error: '資料格式錯誤: ' + JSON.stringify(validated.error.flatten()) }
     }
 
-    const { doctorId, dayOfWeek, startTime, endTime, effectiveFrom } = validated.data
+    const { doctorId, dayOfWeek, startTime, endTime,capacity, effectiveFrom } = validated.data
 
     const { error } = await supabase
         .from('schedules')
@@ -110,6 +112,7 @@ export async function createSchedule(formData: FormData) {
             day_of_week: dayOfWeek,
             start_time: startTime,
             end_time: endTime,
+            capacity: capacity, 
             effective_from: effectiveFrom,
             is_active: true
         })
