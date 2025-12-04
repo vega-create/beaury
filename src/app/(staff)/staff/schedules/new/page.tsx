@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import NewScheduleForm from '@/components/staff/new-schedule-form'
 
+export const dynamic = 'force-dynamic'
+
 export default async function NewSchedulePageWrapper() {
     const supabase = await createClient()
 

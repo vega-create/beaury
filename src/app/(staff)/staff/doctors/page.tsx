@@ -13,6 +13,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DoctorsPage() {
     const supabase = await createClient()
 

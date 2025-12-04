@@ -23,6 +23,8 @@ const DAYS_MAP: Record<string, string> = {
     sunday: '週日',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function SchedulesPage() {
     const supabase = await createClient()
 

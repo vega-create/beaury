@@ -22,6 +22,8 @@ const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondar
     no_show: { label: '未出席', variant: 'destructive' },
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function AppointmentsPage() {
     const supabase = await createClient()
 

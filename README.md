@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 醫療診所預約系統 (Medical Clinic Booking System)
 
-## Getting Started
+一個基於 Next.js 16 和 Supabase 的全功能醫療診所預約管理系統。
 
-First, run the development server:
+## 功能特色
+
+### 🏥 前台功能
+- 🔐 用戶註冊與登入
+- 📅 線上預約療程
+- 👥 訪客預約（無需註冊）
+- 🔢 自動排號系統
+- 📱 響應式設計
+
+### 👨‍💼 後台管理
+- 👨‍⚕️ 醫師資料管理
+- 📋 預約列表與狀態管理
+- ⏰ 醫師排班管理
+- 👥 用戶權限管理
+- 📊 診所設置與統計
+- 📤 預約資料匯出
+
+## 技術棧
+
+- **框架**: Next.js 16 (App Router)
+- **資料庫**: Supabase (PostgreSQL)
+- **UI**: Tailwind CSS + Radix UI
+- **表單驗證**: React Hook Form + Zod
+- **部署**: Vercel
+
+## 快速開始
+
+### 1. 安裝依賴
+
+```bash
+npm install
+```
+
+### 2. 環境變數設置
+
+創建 `.env.local` 文件並添加以下變數：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=你的-Supabase-URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=你的-Supabase-Anon-Key
+```
+
+### 3. 啟動開發伺服器
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+訪問 [http://localhost:3000](http://localhost:3000) 查看應用。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 部署到 Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### ⚠️ 重要提醒
 
-## Learn More
+在部署前，**必須**在 Vercel 中設置環境變數！
 
-To learn more about Next.js, take a look at the following resources:
+詳細的部署指南請查看：**[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 快速部署步驟
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. 推送代碼到 GitHub
+2. 在 Vercel 導入項目
+3. **設置環境變數**（非常重要！）
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. 部署
 
-## Deploy on Vercel
+## 項目結構
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # 認證相關頁面
+│   ├── (customer)/        # 客戶前台頁面
+│   ├── (public)/          # 公開頁面
+│   ├── (staff)/           # 後台管理頁面
+│   └── api/               # API Routes
+├── components/            # React 組件
+│   ├── ui/               # UI 基礎組件
+│   ├── appointments/     # 預約相關組件
+│   ├── public/           # 公開頁面組件
+│   └── staff/            # 後台管理組件
+└── lib/                  # 工具函數與配置
+    ├── supabase/         # Supabase 客戶端
+    ├── utils/            # 工具函數
+    └── validations/      # 表單驗證
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 資料庫設置
+
+請確保在 Supabase 中執行以下 SQL 遷移腳本：
+
+1. `fix_data_and_policies.sql` - 基礎資料表與 RLS 策略
+2. `guest_booking_migration.sql` - 訪客預約功能
+3. `add_queue_number_system.sql` - 排號系統
+
+## 常見問題
+
+### Build 失敗？
+- 確保環境變數已正確設置
+- 檢查 Supabase 連接是否正常
+
+### 部署後無法加載數據？
+- 檢查 Vercel 環境變數設置
+- 確認 Supabase RLS policies 已正確配置
+
+### 更多問題？
+查看 [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) 獲取詳細的故障排除指南。
+
+## 開發指南
+
+### 運行測試
+```bash
+npm run lint
+```
+
+### 構建生產版本
+```bash
+npm run build
+```
+
+### 啟動生產伺服器
+```bash
+npm start
+```
+
+## 授權
+
+MIT License
+
+## 貢獻
+
+歡迎提交 Issue 和 Pull Request！

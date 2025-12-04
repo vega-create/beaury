@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import UserRoleSelect from '@/components/staff/user-role-select'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default async function UsersPage() {
   const supabase = await createClient()
 
@@ -71,9 +73,9 @@ export default async function UsersPage() {
                 <TableCell>{profile.phone || '-'}</TableCell>
                 <TableCell>
                   {/* 使用剛剛做好的下拉選單元件 */}
-                  <UserRoleSelect 
-                    userId={profile.id} 
-                    currentRole={profile.role} 
+                  <UserRoleSelect
+                    userId={profile.id}
+                    currentRole={profile.role}
                     currentUserId={user.id}
                   />
                 </TableCell>

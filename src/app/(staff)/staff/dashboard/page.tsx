@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Calendar, Clock, Activity } from 'lucide-react'
 import ClinicSettings from '@/components/staff/clinic-settings'
 
+export const dynamic = 'force-dynamic'
+
 export default async function StaffDashboard() {
     const supabase = await createClient()
 
