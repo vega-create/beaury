@@ -103,7 +103,7 @@ export async function createSchedule(formData: FormData) {
         return { error: '資料格式錯誤: ' + JSON.stringify(validated.error.flatten()) }
     }
 
-    const { doctorId, dayOfWeek, startTime, endTime,capacity, effectiveFrom } = validated.data
+    const { doctorId, dayOfWeek, startTime, endTime, capacity, effectiveFrom } = validated.data
 
     const { error } = await supabase
         .from('schedules')
@@ -112,7 +112,7 @@ export async function createSchedule(formData: FormData) {
             day_of_week: dayOfWeek,
             start_time: startTime,
             end_time: endTime,
-            capacity: capacity, 
+            capacity: capacity,
             effective_from: effectiveFrom,
             is_active: true
         })
@@ -122,7 +122,7 @@ export async function createSchedule(formData: FormData) {
         if (error.code === '23P01') { // Exclusion violation
             return { error: '該時段與現有排班衝突，請檢查時間。' }
         }
-        return { error: '建立排班失敗' }
+        return { error: `建立排班失敗: ${error.message} (${error.details || error.hint || error.code})` }
     }
 
     revalidatePath('/staff/schedules')
@@ -131,34 +131,34 @@ export async function createSchedule(formData: FormData) {
 
 // ★ 新增：更新使用者角色的功能
 export async function updateUserRole(userId: string, newRole: string) {
-  const supabase = await createClient()
+    const supabase = await createClient()
 
-  // 1. 安全檢查：確認操作者自己必須是 admin
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('未登入')
+    // 1. 安全檢查：確認操作者自己必須是 admin
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('未登入')
 
-  const { data: operatorProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+    const { data: operatorProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
 
-  if (operatorProfile?.role !== 'admin') {
-    throw new Error('權限不足：只有管理員可以修改他人權限')
-  }
+    if (operatorProfile?.role !== 'admin') {
+        throw new Error('權限不足：只有管理員可以修改他人權限')
+    }
 
-  // 2. 執行更新
-  const { error } = await supabase
-    .from('profiles')
-    .update({ role: newRole })
-    .eq('id', userId)
+    // 2. 執行更新
+    const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId)
 
-  if (error) {
-    console.error('Update role error:', error)
-    throw new Error('更新失敗')
-  }
+    if (error) {
+        console.error('Update role error:', error)
+        throw new Error('更新失敗')
+    }
 
-  // 3. 更新畫面
-  revalidatePath('/staff/users')
-  return { success: true }
+    // 3. 更新畫面
+    revalidatePath('/staff/users')
+    return { success: true }
 }
