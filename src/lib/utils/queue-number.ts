@@ -9,25 +9,20 @@ export async function getNextQueueNumber(
     doctorId: string,
     appointmentDate: string
 ): Promise<number> {
-    // Get the current max queue number for this doctor on this date
-    const { data, error } = await supabase
-        .from('appointments')
-        .select('queue_number')
-        .eq('doctor_id', doctorId)
-        .eq('appointment_date', appointmentDate)
-        .order('queue_number', { ascending: false })
-        .limit(1)
-        .single();
+    // Use RPC to bypass RLS
+    const { data, error } = await supabase.rpc('get_doctor_max_queue_number', {
+        p_doctor_id: doctorId,
+        p_date: appointmentDate
+    });
 
-    if (error && error.code !== 'PGRST116') {
-        // PGRST116 is "no rows returned", which is fine
-        console.error('Error fetching max queue number:', error);
+    if (error) {
+        console.error('Error fetching max queue number via RPC:', error);
+        // Fallback to normal query if RPC fails (though it shouldn't)
+        // Or throw error
         throw error;
     }
 
-    // If no appointments exist yet, start at 1
-    const currentMax = data?.queue_number || 0;
-    return currentMax + 1;
+    return (data || 0) + 1;
 }
 
 /**
@@ -46,24 +41,21 @@ export async function checkDailyLimit(
         .eq('setting_key', 'daily_appointment_limit_per_doctor')
         .single();
 
+    let dailyLimit = 30;
     if (settingError) {
         console.error('Error fetching clinic settings:', settingError);
-        // Default to 30 if we can't fetch settings
-        var dailyLimit = 30;
     } else {
         dailyLimit = settingData?.setting_value?.limit || 30;
     }
 
-    // Count existing appointments for this doctor on this date
-    const { count, error: countError } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .eq('doctor_id', doctorId)
-        .eq('appointment_date', appointmentDate)
-        .neq('status', 'cancelled'); // Don't count cancelled appointments
+    // Use RPC to count appointments (bypass RLS)
+    const { data: count, error: countError } = await supabase.rpc('get_doctor_appointment_count', {
+        p_doctor_id: doctorId,
+        p_date: appointmentDate
+    });
 
     if (countError) {
-        console.error('Error counting appointments:', countError);
+        console.error('Error counting appointments via RPC:', countError);
         throw countError;
     }
 

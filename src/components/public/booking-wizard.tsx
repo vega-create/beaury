@@ -125,9 +125,13 @@ function BookingWizardContent() {
                 const errorData = await res.json()
                 // Format Zod error details if available
                 let errorMessage = errorData.error || 'Booking failed'
-                if (errorData.details && Array.isArray(errorData.details)) {
-                    const details = errorData.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join('\n')
-                    errorMessage += `\n\n詳細錯誤：\n${details}`
+                if (errorData.details) {
+                    if (Array.isArray(errorData.details)) {
+                        const details = errorData.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join('\n')
+                        errorMessage += `\n\n詳細錯誤：\n${details}`
+                    } else {
+                        errorMessage += `\n\n${errorData.details}`
+                    }
                 }
                 throw new Error(errorMessage)
             }

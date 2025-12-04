@@ -92,24 +92,35 @@ export async function checkDoctorAvailability(
     }
 
     // 3. Check Capacity
-    // Fetch all existing appointments for this slot
-    const { data: appointments } = await supabase
-        .from('appointments')
-        .select('start_time, end_time')
-        .eq('doctor_id', doctorId)
-        .eq('appointment_date', date)
-        .in('status', ['pending', 'confirmed'])
-        .lt('start_time', endTime)
-        .gt('end_time', startTime);
+    // Fetch all existing appointments for this slot using RPC to bypass RLS
+    const { data: appointments, error: rpcError } = await supabase.rpc('get_doctor_booked_slots', {
+        p_doctor_id: doctorId,
+        p_date: date
+    });
 
-    if (!appointments || appointments.length === 0) {
+    if (rpcError) {
+        console.error('Error fetching booked slots via RPC:', rpcError);
+        // If RPC fails, we might want to fail safe or fallback. 
+        // For now, let's assume if RPC fails, we can't determine availability.
+        return false;
+    }
+
+    // Filter appointments that overlap with the requested slot
+    // Note: RPC returns all appointments for the day, we filter here for the specific slot
+    const relevantAppointments = appointments?.filter((a: any) =>
+        a.start_time < endTime && a.end_time > startTime
+    ) || [];
+
+    if (relevantAppointments.length === 0) {
         return true;
     }
+
 
     const capacity = schedule.capacity || 1;
 
     // Check if adding this appointment exceeds capacity at any point
-    return isSlotAvailable(appointments, startTime, endTime, capacity);
+    // Note: We pass all appointments for the day, isSlotAvailable will filter relevant ones
+    return isSlotAvailable(appointments || [], startTime, endTime, capacity);
 }
 
 // Helper to check if a slot is available given existing appointments and capacity
