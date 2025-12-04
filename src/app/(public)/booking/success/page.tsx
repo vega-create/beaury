@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle2, Calendar, Clock, User } from 'lucide-react'
+import Link from 'next/link'
 import { Suspense } from 'react'
 
 function BookingSuccessContent() {
@@ -58,12 +59,11 @@ function BookingSuccessContent() {
                     </p>
                 </CardContent>
                 <CardFooter className="pt-2 pb-8">
-                    <Button
-                        className="w-full bg-black hover:bg-slate-800 text-white rounded-full h-12"
-                        onClick={() => router.push('/')}
-                    >
-                        返回首頁
-                    </Button>
+                    <Link href="/booking" className="w-full">
+                        <Button className="w-full bg-black text-white hover:bg-gray-800">
+                            返回預約首頁
+                        </Button>
+                    </Link>
                 </CardFooter>
             </Card>
         </div>
