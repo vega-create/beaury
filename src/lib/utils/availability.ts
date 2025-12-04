@@ -43,10 +43,10 @@ export async function checkDoctorAvailability(
         .eq('is_active', true)
         .lte('effective_from', date)
         .or(`effective_until.is.null,effective_until.gte.${date}`);
-    
+
     console.log('Found schedules:', schedules?.length || 0);
     console.log('Schedules:', JSON.stringify(schedules, null, 2));
-    
+
     // ★ 因為上面已經宣告了 schedError，這行現在才不會報錯 (如果不想要也可以直接刪除這行)
     console.log('Schedule query error:', schedError);
 
@@ -57,13 +57,13 @@ export async function checkDoctorAvailability(
 
     // Find the schedule that covers this time
     const schedule = schedules.find(s => {
-        // 統一格式：都補上秒數再比對
-        const normalizedStart = startTime.length === 5 ? startTime + ':00' : startTime;
-        const normalizedEnd = endTime.length === 5 ? endTime + ':00' : endTime;
-        const scheduleStart = s.start_time;
-        const scheduleEnd = s.end_time;
-        
-        return normalizedStart >= scheduleStart && normalizedEnd <= scheduleEnd;
+        // 統一格式：只取前5個字符 (HH:mm) 進行比較
+        const requestStart = startTime.substring(0, 5);
+        const requestEnd = endTime.substring(0, 5);
+        const scheduleStart = s.start_time.substring(0, 5);
+        const scheduleEnd = s.end_time.substring(0, 5);
+
+        return requestStart >= scheduleStart && requestEnd <= scheduleEnd;
     });
 
     console.log('Matching schedule:', schedule);
