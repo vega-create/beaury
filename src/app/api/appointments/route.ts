@@ -101,8 +101,24 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: '資料格式錯誤', details: error.issues }, { status: 400 });
         }
         console.error('Booking Error:', error);
+
+        // 嘗試提取有用的錯誤訊息
+        let errorDetails = 'Unknown error';
+        if (error instanceof Error) {
+            errorDetails = error.message;
+        } else if (typeof error === 'object' && error !== null) {
+            // 處理 Supabase PostgrestError
+            errorDetails = JSON.stringify(error);
+        } else {
+            errorDetails = String(error);
+        }
+
         return NextResponse.json(
-            { error: '預約失敗，請稍後再試' },
+            {
+                error: '預約失敗，請稍後再試',
+                details: errorDetails,
+                debug_info: error // 嘗試回傳原始錯誤物件
+            },
             { status: 500 }
         );
     }
