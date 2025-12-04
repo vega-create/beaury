@@ -135,8 +135,15 @@ function BookingWizardContent() {
             const result = await res.json()
             const queueNumber = result.queue_number || '未知'
 
-            alert(`預約成功！\n您的掛號號碼是：${queueNumber}\n我們會盡快與您聯繫確認。`)
-            router.push('/')
+            // Redirect to success page
+            const params = new URLSearchParams({
+                queue: String(queueNumber),
+                date: format(date, 'yyyy-MM-dd'),
+                time: formattedTime,
+                doctor: selectedDoctor ? (Array.isArray(selectedDoctor.profiles) ? selectedDoctor.profiles[0]?.full_name : selectedDoctor.profiles?.full_name) : '不指定'
+            })
+
+            router.push(`/booking/success?${params.toString()}`)
         } catch (error: any) {
             console.error(error)
             alert(error.message || '預約失敗，請稍後再試')
