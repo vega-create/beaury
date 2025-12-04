@@ -54,7 +54,15 @@ export async function checkDoctorAvailability(
     }
 
     // Find the schedule that covers this time
-    const schedule = schedules.find(s => startTime >= s.start_time && endTime <= s.end_time);
+    const schedule = schedules.find(s => {
+    // 統一格式：都補上秒數再比對
+    const normalizedStart = startTime.length === 5 ? startTime + ':00' : startTime;
+    const normalizedEnd = endTime.length === 5 ? endTime + ':00' : endTime;
+    const scheduleStart = s.start_time;
+    const scheduleEnd = s.end_time;
+    
+    return normalizedStart >= scheduleStart && normalizedEnd <= scheduleEnd;
+});
 
     console.log('Matching schedule:', schedule);
 
