@@ -102,7 +102,11 @@ export async function POST(request: NextRequest) {
         }
         console.error('Booking Error:', error);
         return NextResponse.json(
-            { error: '預約失敗，請稍後再試' },
+            {
+                error: '預約失敗，請稍後再試',
+                details: error instanceof Error ? error.message : String(error),
+                full_error: error
+            },
             { status: 500 }
         );
     }
