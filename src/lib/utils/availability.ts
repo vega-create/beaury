@@ -35,7 +35,8 @@ export async function checkDoctorAvailability(
     console.log('Time:', startTime, '-', endTime);
 
     // 1. Get Schedule & Capacity
-    const { data: schedules } = await supabase
+    // 請在此處加入 error: schedError 的解構賦值
+    const { data: schedules, error: schedError } = await supabase
         .from('schedules')
         .select('*')
         .eq('doctor_id', doctorId)
