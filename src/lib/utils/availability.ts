@@ -1,9 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { addMinutes, format, parse, isBefore, isAfter, isEqual } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
 // Helper to get day of week for database query (monday, tuesday, etc.)
 export function getDayOfWeek(dateString: string): string {
-    // 使用 parseISO 或手動解析，避免時區問題
     const [year, month, day] = dateString.split('-').map(Number);
     const date = new Date(year, month - 1, day); // 月份從 0 開始
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -35,7 +34,7 @@ export async function checkDoctorAvailability(
     console.log('Time:', startTime, '-', endTime);
 
     // 1. Get Schedule & Capacity
-    // 請在此處加入 error: schedError 的解構賦值
+    // ★ 修正重點：這裡加入了 error: schedError 的宣告
     const { data: schedules, error: schedError } = await supabase
         .from('schedules')
         .select('*')
@@ -47,6 +46,8 @@ export async function checkDoctorAvailability(
     
     console.log('Found schedules:', schedules?.length || 0);
     console.log('Schedules:', JSON.stringify(schedules, null, 2));
+    
+    // ★ 因為上面已經宣告了 schedError，這行現在才不會報錯 (如果不想要也可以直接刪除這行)
     console.log('Schedule query error:', schedError);
 
     if (!schedules || schedules.length === 0) {
@@ -56,17 +57,16 @@ export async function checkDoctorAvailability(
 
     // Find the schedule that covers this time
     const schedule = schedules.find(s => {
-    // 統一格式：都補上秒數再比對
-    const normalizedStart = startTime.length === 5 ? startTime + ':00' : startTime;
-    const normalizedEnd = endTime.length === 5 ? endTime + ':00' : endTime;
-    const scheduleStart = s.start_time;
-    const scheduleEnd = s.end_time;
-    
-    return normalizedStart >= scheduleStart && normalizedEnd <= scheduleEnd;
-});
+        // 統一格式：都補上秒數再比對
+        const normalizedStart = startTime.length === 5 ? startTime + ':00' : startTime;
+        const normalizedEnd = endTime.length === 5 ? endTime + ':00' : endTime;
+        const scheduleStart = s.start_time;
+        const scheduleEnd = s.end_time;
+        
+        return normalizedStart >= scheduleStart && normalizedEnd <= scheduleEnd;
+    });
 
     console.log('Matching schedule:', schedule);
-
 
     if (!schedule) {
         console.log('❌ No matching schedule for this time');
@@ -89,7 +89,6 @@ export async function checkDoctorAvailability(
             if (!exception.start_time || !exception.end_time) return false; // Full day
             if (startTime < exception.end_time && endTime > exception.start_time) return false; // Partial overlap
         }
-        // If is_available=true, we assume it works (or adds capacity? for now assume standard capacity)
     }
 
     // 3. Check Capacity
@@ -120,18 +119,14 @@ export function isSlotAvailable(
     slotEndTime: string,
     capacity: number
 ): boolean {
-    // Filter only relevant appointments (already done by DB query usually, but good for safety)
     const relevantAppts = appointments.filter(a =>
         a.start_time < slotEndTime && a.end_time > slotStartTime
     );
 
-    // Optimization: If total overlapping < capacity, it's definitely safe
     if (relevantAppts.length < capacity) {
         return true;
     }
 
-    // Sweep line / Critical points check
-    // Check at the start of the requested slot, and at the start of every overlapping appointment
     const pointsToCheck = new Set<string>();
     pointsToCheck.add(slotStartTime);
     relevantAppts.forEach(a => {
@@ -161,10 +156,6 @@ export async function checkAppointmentConflict(
     startTime: string,
     endTime: string
 ): Promise<boolean> {
-    // This function was strictly checking for ANY overlap (Capacity=1)
-    // We redirect to checkDoctorAvailability but we need to know if it returns false (available) or true (available)
-    // Wait, checkDoctorAvailability returns TRUE if available.
-    // checkAppointmentConflict returns TRUE if CONFLICT.
     const isAvailable = await checkDoctorAvailability(supabase, doctorId, date, startTime, endTime);
     return !isAvailable;
 }
