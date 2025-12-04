@@ -83,6 +83,13 @@ export async function POST(request: NextRequest) {
         });
 
         if (error) {
+            // Check for unique constraint violation (double booking)
+            if ((error as any).code === '23P01') {
+                return NextResponse.json(
+                    { error: '該時段已被預約，請選擇其他時段' },
+                    { status: 409 }
+                );
+            }
             console.error('Database Insert Error (RPC):', error);
             throw error;
         }
