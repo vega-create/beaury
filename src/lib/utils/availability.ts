@@ -100,9 +100,7 @@ export async function checkDoctorAvailability(
 
     if (rpcError) {
         console.error('Error fetching booked slots via RPC:', rpcError);
-        // If RPC fails, we might want to fail safe or fallback. 
-        // For now, let's assume if RPC fails, we can't determine availability.
-        return false;
+        throw new Error(`Availability Check Failed: ${rpcError.message}`);
     }
 
     // Filter appointments that overlap with the requested slot
