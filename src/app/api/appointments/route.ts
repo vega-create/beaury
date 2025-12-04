@@ -66,34 +66,28 @@ export async function POST(request: NextRequest) {
             body.appointment_date
         );
 
-        // 6. Insert Appointment with queue number
-        const { data, error } = await supabase
-            .from('appointments')
-            .insert({
-                customer_id: user ? user.id : null,
-                doctor_id: body.doctor_id,
-                treatment_id: body.treatment_id,
-                appointment_type: 'treatment',
-                appointment_date: body.appointment_date,
-                start_time: body.start_time,
-                end_time: endTime,
-                status: 'pending',
-                customer_notes: body.notes,
-                queue_number: queueNumber,
-                // Guest fields
-                guest_name: body.guest_name,
-                guest_phone: body.guest_phone,
-                guest_email: body.guest_email,
-                is_guest: body.is_guest || false
-            })
-            .select()
-            .single();
+        // 6. Insert Appointment using RPC to bypass RLS
+        const { data, error } = await supabase.rpc('create_appointment', {
+            p_doctor_id: body.doctor_id,
+            p_treatment_id: body.treatment_id,
+            p_appointment_date: body.appointment_date,
+            p_start_time: body.start_time,
+            p_end_time: endTime,
+            p_notes: body.notes || '',
+            p_queue_number: queueNumber,
+            p_guest_name: body.guest_name || '',
+            p_guest_phone: body.guest_phone || '',
+            p_guest_email: body.guest_email || '',
+            p_is_guest: body.is_guest || false,
+            p_customer_id: user ? user.id : null
+        });
 
         if (error) {
-            console.error('Database Insert Error:', error);
+            console.error('Database Insert Error (RPC):', error);
             throw error;
         }
 
+        // RPC returns the data directly, no need for .select().single()
         return NextResponse.json(data);
 
     } catch (error) {
