@@ -3,7 +3,9 @@ import { addMinutes, format, parse, isBefore, isAfter, isEqual } from 'date-fns'
 
 // Helper to get day of week for database query (monday, tuesday, etc.)
 export function getDayOfWeek(dateString: string): string {
-    const date = new Date(dateString);
+    // 使用 parseISO 或手動解析，避免時區問題
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // 月份從 0 開始
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     return days[date.getDay()];
 }
