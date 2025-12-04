@@ -105,8 +105,9 @@ export async function checkDoctorAvailability(
 
     // Filter appointments that overlap with the requested slot
     // Note: RPC returns all appointments for the day, we filter here for the specific slot
+    // Updated to use slot_start/slot_end to avoid SQL ambiguity
     const relevantAppointments = appointments?.filter((a: any) =>
-        a.start_time < endTime && a.end_time > startTime
+        a.slot_start < endTime && a.slot_end > startTime
     ) || [];
 
     if (relevantAppointments.length === 0) {
@@ -116,9 +117,15 @@ export async function checkDoctorAvailability(
 
     const capacity = schedule.capacity || 1;
 
+    // Map RPC result to expected format for isSlotAvailable
+    const mappedAppointments = (appointments || []).map((a: any) => ({
+        start_time: a.slot_start,
+        end_time: a.slot_end
+    }));
+
     // Check if adding this appointment exceeds capacity at any point
     // Note: We pass all appointments for the day, isSlotAvailable will filter relevant ones
-    return isSlotAvailable(appointments || [], startTime, endTime, capacity);
+    return isSlotAvailable(mappedAppointments, startTime, endTime, capacity);
 }
 
 // Helper to check if a slot is available given existing appointments and capacity
