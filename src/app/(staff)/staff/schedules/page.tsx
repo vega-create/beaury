@@ -97,11 +97,7 @@ export default async function SchedulesPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => alert('排班編輯功能開發中，請暫時刪除後重新建立')}
-                                    >
+                                    <Button variant="ghost" size="sm" disabled>
                                         編輯
                                     </Button>
                                 </TableCell>
