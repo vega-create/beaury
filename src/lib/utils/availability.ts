@@ -28,6 +28,11 @@ export async function checkDoctorAvailability(
     endTime: string
 ): Promise<boolean> {
     const dayOfWeek = getDayOfWeek(date);
+    console.log('=== Availability Check ===');
+    console.log('Date:', date);
+    console.log('Calculated dayOfWeek:', dayOfWeek);
+    console.log('DoctorId:', doctorId);
+    console.log('Time:', startTime, '-', endTime);
 
     // 1. Get Schedule & Capacity
     const { data: schedules } = await supabase
