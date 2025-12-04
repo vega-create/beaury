@@ -43,17 +43,28 @@ export async function checkDoctorAvailability(
         .eq('is_active', true)
         .lte('effective_from', date)
         .or(`effective_until.is.null,effective_until.gte.${date}`);
+    
+    console.log('Found schedules:', schedules?.length || 0);
+    console.log('Schedules:', JSON.stringify(schedules, null, 2));
+    console.log('Schedule query error:', schedError);
 
     if (!schedules || schedules.length === 0) {
+        console.log('❌ No schedules found');
         return false;
     }
 
     // Find the schedule that covers this time
     const schedule = schedules.find(s => startTime >= s.start_time && endTime <= s.end_time);
 
+    console.log('Matching schedule:', schedule);
+
+
     if (!schedule) {
+        console.log('❌ No matching schedule for this time');
         return false;
     }
+
+    console.log('✅ Schedule found, checking capacity...');
 
     // 2. Check Exceptions
     const { data: exception } = await supabase
