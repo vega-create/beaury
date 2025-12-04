@@ -57,13 +57,13 @@ export async function checkDoctorAvailability(
 
     // Find the schedule that covers this time
     const schedule = schedules.find(s => {
-        // 統一格式：只取前5個字符 (HH:mm) 進行比較
-        const requestStart = startTime.substring(0, 5);
-        const requestEnd = endTime.substring(0, 5);
-        const scheduleStart = s.start_time.substring(0, 5);
-        const scheduleEnd = s.end_time.substring(0, 5);
+        // 統一格式：都補上秒數再比對
+        const normalizedStart = startTime.length === 5 ? startTime + ':00' : startTime;
+        const normalizedEnd = endTime.length === 5 ? endTime + ':00' : endTime;
+        const scheduleStart = s.start_time;
+        const scheduleEnd = s.end_time;
 
-        return requestStart >= scheduleStart && requestEnd <= scheduleEnd;
+        return normalizedStart >= scheduleStart && normalizedEnd <= scheduleEnd;
     });
 
     console.log('Matching schedule:', schedule);

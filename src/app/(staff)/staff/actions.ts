@@ -122,7 +122,7 @@ export async function createSchedule(formData: FormData) {
         if (error.code === '23P01') { // Exclusion violation
             return { error: '該時段與現有排班衝突，請檢查時間。' }
         }
-        return { error: `建立排班失敗: ${error.message} (${error.details || error.hint || error.code})` }
+        return { error: '建立排班失敗' }
     }
 
     revalidatePath('/staff/schedules')

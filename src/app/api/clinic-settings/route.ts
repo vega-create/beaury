@@ -18,8 +18,7 @@ export async function GET(request: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    const staffRoles = ['admin', 'receptionist', 'doctor'];
-    if (!profile || !staffRoles.includes(profile.role)) {
+    if (profile?.role !== 'staff') {
         return NextResponse.json({ error: '權限不足' }, { status: 403 });
     }
 
@@ -54,8 +53,7 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    const staffRoles = ['admin', 'receptionist', 'doctor'];
-    if (!profile || !staffRoles.includes(profile.role)) {
+    if (profile?.role !== 'staff') {
         return NextResponse.json({ error: '權限不足' }, { status: 403 });
     }
 
